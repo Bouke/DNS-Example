@@ -16,22 +16,29 @@ server.port = 53
 
 let domain = CommandLine.arguments[2]
 
+// Create the request
 let request = Message(header: Header(id: UInt16(truncatingBitPattern: arc4random()), response: false, authoritativeAnswer: true, recursionDesired: true),
                       questions: [Question(name: domain, type: .host)])
 let requestData = try request.pack()
 
+// Setup the socket
 let socket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
 try socket.listen(on: 0)
 
+// Send the request
 let startTime = Date()
 try socket.write(from: requestData, to: server)
 print()
 var responseData = Data()
+
+// Wait for a response
 let (bytesRead, bytesFrom) = try socket.readDatagram(into: &responseData)
 let duration = Date().timeIntervalSince(startTime)
 
+// Parse the response
 let response = try Message(unpack: responseData)
 
+// Print the response
 print(";; Got answer:")
 print(";; ->>HEADER<<- opcode: \(response.header.operationCode), status: \(response.header.returnCode), id: \(response.header.id)")
 print(";; flags:\(response.header.operationCode == .query ? " qr" : "")\(response.header.truncation ? " tc" : "")\(response.header.authoritativeAnswer ? " aa" : "")\(response.header.recursionDesired ? " rd" : "")\(response.header.recursionAvailable ? " ra" : ""); QUERY: \(response.questions.count), ANSWER: \(response.answers.count), AUTHORITY: \(response.authorities.count), ADDITIONAL: \(response.additional.count)")
