@@ -1,5 +1,4 @@
-import Darwin
-@testable import DNS
+import DNS
 import Foundation
 import Socket
 
