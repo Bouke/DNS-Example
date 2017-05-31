@@ -1,4 +1,9 @@
-import Darwin
+#if os(OSX)
+    import Darwin
+#else
+    import Glibc
+#endif
+
 import Foundation
 import Socket
 
