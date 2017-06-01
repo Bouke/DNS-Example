@@ -16,7 +16,15 @@ server.port = 53
 let domain = CommandLine.arguments[2]
 
 // Create the request
-let request = Message(header: Header(id: UInt16(truncatingBitPattern: arc4random()), response: false, authoritativeAnswer: true, recursionDesired: true),
+#if os(macOS)
+    let id = UInt16(truncatingBitPattern: arc4random())
+#else
+    import Glibc
+    srand(UInt32(time(nil)))
+    let id = UInt16(truncatingBitPattern: random())
+#endif
+
+let request = Message(header: Header(id: id, response: false, authoritativeAnswer: true, recursionDesired: true),
                       questions: [Question(name: domain, type: .host)])
 let requestData = try request.pack()
 
